@@ -4,6 +4,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
 from dotenv import load_dotenv
 import os
 
@@ -14,7 +17,10 @@ load_dotenv()
 login = os.getenv("login")
 password = os.getenv("password")
 
-driver = webdriver.Chrome()
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument("__headless")
+# service=Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(options=chrome_options)
 
 driver.get("https://wsp.kbtu.kz/RegistrationOnline")
 while True:
