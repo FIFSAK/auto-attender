@@ -4,7 +4,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 from dotenv import load_dotenv
 import os
 
@@ -17,7 +16,6 @@ password = os.getenv("password")
 
 driver = webdriver.Chrome()
 
-# открыть страницу
 driver.get("https://wsp.kbtu.kz/RegistrationOnline")
 while True:
     try:
@@ -37,23 +35,20 @@ while True:
 
 
     except:
-        print("Элемент для авторизации не найден ищем элемент для отметки")
-        buttons = driver.find_elements(By.XPATH,'//*[@id="RegistrationOnline-1674962804"]/div/div[2]/div/div[2]/div/div/div/div/div/div/div[3]/div')
+        print("auth form not found will find attend element")
+        buttons = driver.find_elements(By.XPATH,
+                                       '//*[@id="RegistrationOnline-1674962804"]/div/div[2]/div/div[2]/div/div/div/div/div/div/div[3]/div')
         print(buttons)
         if buttons:
             for button in buttons:
                 try:
                     button.click()
-                    print("click")
-                except StaleElementReferenceException:
-                    print("Элемент устарел, ищем заново")
-                    print("обнавляю")
+                    print("click attend")
+                except:
+                    print("find attend element again")
+                    print("refreshing")
                     time.sleep(60)
                     driver.refresh()
-                    # Повторно ищем элементы и кликаем, если это необходимо
-                    # Возможно, потребуется обновить XPath или логику поиска
-        print("обнавляю")
+        print("refreshing")
         time.sleep(60)
         driver.refresh()
-
-
