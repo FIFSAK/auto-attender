@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+import telebot
 
 from dotenv import load_dotenv
 import os
@@ -13,15 +14,15 @@ import os
 from selenium.webdriver.support.wait import WebDriverWait
 
 load_dotenv()
-
+bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
 login = os.getenv("login")
 password = os.getenv("password")
+chat_id = os.getenv('CHAT_ID')
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("__headless")
 # service=Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(options=chrome_options)
-
 driver.get("https://wsp.kbtu.kz/RegistrationOnline")
 while True:
     try:
@@ -50,6 +51,7 @@ while True:
                 try:
                     button.click()
                     print("click attend")
+                    bot.send_message(chat_id, "I clicked attend")
                 except:
                     print("find attend element again")
                     print("refreshing")
