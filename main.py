@@ -61,3 +61,4 @@ while True:
         bot.send_message(chat_id, "I will refresh the page")
         time.sleep(60)
         driver.refresh()
+
