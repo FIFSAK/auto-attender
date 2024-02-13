@@ -4,7 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.service import Service
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 import telebot
@@ -27,9 +27,8 @@ chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 
 # Создаем экземпляр Service с использованием ChromeDriverManager
-service = Service(ChromeDriverManager().install())
+service = Service(executable_path=ChromeDriverManager().install())
 
-# Передаем созданный экземпляр Service при создании экземпляра WebDriver
 driver = webdriver.Chrome(service=service, options=chrome_options)
 driver.get("https://wsp.kbtu.kz/RegistrationOnline")
 while True:
