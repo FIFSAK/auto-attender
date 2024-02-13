@@ -60,12 +60,12 @@ while True:
                     print("click attend")
                     bot.send_message(chat_id, "I clicked attend")
                 except:
-                    print("find attend element again")
-                    print("refreshing")
+                    # print("find attend element again")
+                    # print("refreshing")
                     time.sleep(60)
                     driver.refresh()
-        print("refreshing")
-        bot.send_message(chat_id, "I will refresh the page")
+        # print("refreshing")
+        # bot.send_message(chat_id, "I will refresh the page")
         time.sleep(60)
         driver.refresh()
 
