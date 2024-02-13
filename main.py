@@ -7,6 +7,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import telebot
+from selenium.webdriver.chrome.options import Options
 
 from dotenv import load_dotenv
 import os
@@ -19,10 +20,14 @@ login = os.getenv("login")
 password = os.getenv("password")
 chat_id = os.getenv('CHAT_ID')
 
-# chrome_options = webdriver.ChromeOptions()
-# chrome_options.add_argument("__headless")
-# service=Service(ChromeDriverManager().install())
-driver = webdriver.Chrome()
+chrome_options = Options()
+chrome_options.add_argument("--headless") # Запускает Chrome в headless режиме.
+chrome_options.add_argument("--disable-gpu") # Отключает GPU аппаратное ускорение.
+chrome_options.add_argument("--no-sandbox") # Отключает режим песочницы для процесса.
+chrome_options.add_argument("--disable-dev-shm-usage") # Отключает использование /dev/shm.
+# chrome_options.binary_location = "/app/.apt/usr/bin/google-chrome" # Раскомментируйте и настройте путь к бинарнику Chrome, если не используете buildpack.
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 driver.get("https://wsp.kbtu.kz/RegistrationOnline")
 while True:
     try:
