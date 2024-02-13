@@ -6,8 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-import telebot
 from selenium.webdriver.chrome.options import Options
+import telebot
 
 from dotenv import load_dotenv
 import os
@@ -21,13 +21,16 @@ password = os.getenv("password")
 chat_id = os.getenv('CHAT_ID')
 
 chrome_options = Options()
-chrome_options.add_argument("--headless") # Запускает Chrome в headless режиме.
-chrome_options.add_argument("--disable-gpu") # Отключает GPU аппаратное ускорение.
-chrome_options.add_argument("--no-sandbox") # Отключает режим песочницы для процесса.
-chrome_options.add_argument("--disable-dev-shm-usage") # Отключает использование /dev/shm.
-# chrome_options.binary_location = "/app/.apt/usr/bin/google-chrome" # Раскомментируйте и настройте путь к бинарнику Chrome, если не используете buildpack.
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--disable-gpu")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+# Создаем экземпляр Service с использованием ChromeDriverManager
+service = Service(ChromeDriverManager().install())
+
+# Передаем созданный экземпляр Service при создании экземпляра WebDriver
+driver = webdriver.Chrome(service=service, options=chrome_options)
 driver.get("https://wsp.kbtu.kz/RegistrationOnline")
 while True:
     try:
