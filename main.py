@@ -19,10 +19,10 @@ login = os.getenv("login")
 password = os.getenv("password")
 chat_id = os.getenv('CHAT_ID')
 
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_argument("__headless")
+# chrome_options = webdriver.ChromeOptions()
+# chrome_options.add_argument("__headless")
 # service=Service(ChromeDriverManager().install())
-driver = webdriver.Chrome(options=chrome_options)
+driver = webdriver.Chrome()
 driver.get("https://wsp.kbtu.kz/RegistrationOnline")
 while True:
     try:
