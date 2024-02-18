@@ -31,6 +31,7 @@ service = Service(executable_path=ChromeDriverManager().install())
 
 driver = webdriver.Chrome(service=service, options=chrome_options)
 driver.get("https://wsp.kbtu.kz/RegistrationOnline")
+bot.send_message(chat_id, "I am starting the bot")
 while True:
     try:
         WebDriverWait(driver, 10).until(
