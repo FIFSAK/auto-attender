@@ -53,7 +53,7 @@ while True:
         # print("auth form not found will find attend element")
         buttons = driver.find_elements(By.XPATH,
                                        '//*[@id="RegistrationOnline-1674962804"]/div/div[2]/div/div[2]/div/div/div/div/div/div/div[3]/div')
-        # print(buttons)
+        # print(buttons)    //*[@id="RegistrationOnline-1674962804"]/div/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[3]/div
         if buttons:
             for button in buttons:
                 try:
