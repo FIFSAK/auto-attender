@@ -1,6 +1,5 @@
 import time
 from selenium.webdriver.support import expected_conditions as EC
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -53,20 +52,18 @@ while True:
         # print("auth form not found will find attend element")
         buttons = driver.find_elements(By.XPATH,
                                        '//*[@id="RegistrationOnline-1674962804"]/div/div[2]/div/div[2]/div/div/div/div/div/div/div[3]/div')
-        # print(buttons)    //*[@id="RegistrationOnline-1674962804"]/div/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[3]/div
+        print(buttons)
+
         if buttons:
             for button in buttons:
-                try:
+                class_attribute = button.get_attribute("class")
+                if "v-enabled" in class_attribute:
                     button.click()
                     print("click attend")
                     bot.send_message(chat_id, "I clicked attend")
-                except:
-                    # print("find attend element again")
-                    # print("refreshing")
-                    time.sleep(60)
-                    driver.refresh()
+                    continue
+                print("no attend button")
         # print("refreshing")
         # bot.send_message(chat_id, "I will refresh the page")
         time.sleep(60)
         driver.refresh()
-
