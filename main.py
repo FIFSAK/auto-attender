@@ -29,7 +29,7 @@ chrome_options.add_argument("--disable-dev-shm-usage")
 service = Service(executable_path=ChromeDriverManager().install())
 
 driver = webdriver.Chrome(service=service, options=chrome_options)
-driver.get("https://wsp.kbtu.kz/RegistrationOnline")
+driver.get("file:///C:/Users/Anuar/Downloads/Telegram%20Desktop/reg.html")
 bot.send_message(chat_id, "I am starting the bot")
 while True:
     try:
@@ -52,16 +52,23 @@ while True:
         # print("auth form not found will find attend element")
         buttons = driver.find_elements(By.XPATH,
                                        '//*[@id="RegistrationOnline-1674962804"]/div/div[2]/div/div[2]/div/div/div/div/div/div/div[3]/div')
-        print(buttons)
+        # print(buttons)
 
         if buttons:
             for button in buttons:
                 class_attribute = button.get_attribute("class")
+                # if True:
                 if "v-enabled" in class_attribute:
-                    button.click()
-                    print("click attend")
-                    bot.send_message(chat_id, "I clicked attend")
-                    continue
+                    try:
+                        button.click()
+                        # print("click attend")
+                        form = driver.find_element(By.XPATH,
+                                                   '//*[@id="RegistrationOnline-1674962804"]/div/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div')
+                        bot.send_message(chat_id, "I clicked attend \n" + form.text)
+                        continue
+                    except:
+                        bot.send_message(chat_id, "I can't click attend, click by yourself")
+                        continue
                 print("no attend button")
         # print("refreshing")
         # bot.send_message(chat_id, "I will refresh the page")
