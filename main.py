@@ -29,7 +29,7 @@ chrome_options.add_argument("--disable-dev-shm-usage")
 service = Service(executable_path=ChromeDriverManager().install())
 
 driver = webdriver.Chrome(service=service, options=chrome_options)
-driver.get("file:///C:/Users/Anuar/Downloads/Telegram%20Desktop/reg.html")
+driver.get("https://wsp.kbtu.kz/RegistrationOnline")
 bot.send_message(chat_id, "I am starting the bot")
 while True:
     try:
@@ -69,7 +69,7 @@ while True:
                     except:
                         bot.send_message(chat_id, "I can't click attend, click by yourself")
                         continue
-                print("no attend button")
+                # print("no attend button")
         # print("refreshing")
         # bot.send_message(chat_id, "I will refresh the page")
         time.sleep(60)
