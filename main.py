@@ -69,7 +69,7 @@ while True:
                     except:
                         bot.send_message(chat_id, "I can't click attend, click by yourself")
                         continue
-                print("no attend button")
+                # print("no attend button")
         # print("refreshing")
         # bot.send_message(chat_id, "I will refresh the page")
         time.sleep(60)
