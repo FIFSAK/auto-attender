@@ -29,7 +29,7 @@ chrome_options.add_argument("--disable-dev-shm-usage")
 service = Service(executable_path=ChromeDriverManager().install())
 
 driver = webdriver.Chrome(service=service, options=chrome_options)
-driver.get("file:///C:/Users/Anuar/Downloads/Telegram%20Desktop/reg.html")
+driver.get("https://wsp.kbtu.kz/RegistrationOnline")
 bot.send_message(chat_id, "I am starting the bot")
 while True:
     try:
