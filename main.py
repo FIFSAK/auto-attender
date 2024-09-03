@@ -32,7 +32,7 @@ try:
             # WebDriverWait(driver, 10).until(
             #     EC.presence_of_element_located((By.XPATH, '//*[@id="gwt-uid-4"]'))
             # )
-            time.sleep(20)
+            time.sleep(5)
             login_form = driver.find_element(By.XPATH, '//*[@id="gwt-uid-4"]')
             password_form = driver.find_element(By.XPATH, '//*[@id="gwt-uid-6"]')
 
@@ -75,6 +75,4 @@ try:
 except Exception as e:
     bot.send_message(chat_id, "I am stopping the bot")
     bot.send_message(chat_id, e)
-    driver.quit()
     print(e)
-    raise e
