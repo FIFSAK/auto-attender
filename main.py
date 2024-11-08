@@ -1,21 +1,17 @@
+import os
 import time
-from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 import telebot
 from dotenv import load_dotenv
-import os
-from selenium.webdriver.support.wait import WebDriverWait
 
 load_dotenv()
-bot = telebot.TeleBot("6583214420:AAFAnDBbOPE_j531SD2UoyjBj_RqkrXhrH0")
-login = "an_kurmanov@kbtu.kz"
-password = "timbersaw 1top!"
-chat_id = '764803234'
+bot = telebot.TeleBot(os.getenv("TELEGRAM_TOKEN"))
+login = os.getenv("LOGIN")
+password = os.getenv("PASSWORD")
+chat_id = os.getenv("TELEGRAM_CHAT_ID")
 try:
     chrome_options = Options()
     chrome_options.add_argument("--headless")
