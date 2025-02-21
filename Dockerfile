@@ -1,28 +1,31 @@
-# Используем базовый образ на основе Ubuntu
-FROM ubuntu:latest
+# Используем легковесный базовый образ на Python 3.10 (можно указать 3.11 или др.)
+FROM python:3.10-slim
 
-# Устанавливаем Python и другие зависимости
-USER root
+# Чтобы apt-get не зависал на вопросах
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Устанавливаем Chromium и chromedriver
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip python3-venv wget unzip curl && \
-    apt-get clean
+    apt-get install -y --no-install-recommends \
+        chromium \
+        chromium-driver \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем Chrome
-RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee -a /etc/apt/sources.list.d/google-chrome.list && \
-    apt-get update && \
-    apt-get install -y google-chrome-stable && \
-    apt-get clean
-
-# Устанавливаем рабочую директорию
+# Создаём рабочую директорию
 WORKDIR /app
 
-# Копируем файлы проекта
+# Скопируем файлы зависимостей (если у вас есть requirements.txt)
+COPY requirements.txt ./
+
+# Создаем и активируем виртуальное окружение, затем устанавливаем зависимости
+RUN python -m venv venv && \
+    . venv/bin/activate && \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+# Копируем оставшийся проектный код в контейнер
 COPY . /app
+COPY .env /app/.env
 
-# Создаем виртуальное окружение и устанавливаем зависимости
-RUN python3 -m venv venv
-RUN . venv/bin/activate && pip install -r requirements.txt
-
-# Запуск приложения
-CMD ["/app/venv/bin/python3", "main.py"]
+# Запускаем ваш скрипт при старте контейнера
+CMD ["/app/venv/bin/python", "main.py"]
