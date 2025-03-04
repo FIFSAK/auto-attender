@@ -51,7 +51,7 @@ deploy:
         echo "Pulling new image..."
         docker pull $CI_REGISTRY_IMAGE:$DOCKER_TAG
         echo "Running new container..."
-        docker run -d --restart=always --name $CONTAINER_NAME -p 80:80 $CI_REGISTRY_IMAGE:$DOCKER_TAG
+        docker run -d --restart=always --name $CONTAINER_NAME $CI_REGISTRY_IMAGE:$DOCKER_TAG
       EOF
   only:
     - main 
