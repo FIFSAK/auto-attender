@@ -18,6 +18,12 @@ before_script:
   - echo "TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}" >> .env
   - echo "LOGIN=${LOGIN}" >> .env
   - echo "PASSWORD=${PASSWORD}" >> .env
+  - mkdir -p ~/.ssh
+  - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+  - eval "$(ssh-agent -s)"
+  - ssh-add ~/.ssh/id_rsa
+  - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
 
 build:
   stage: build
