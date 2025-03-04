@@ -5,8 +5,8 @@ stages:
 variables:
   DOCKER_IMAGE: "att"
   DOCKER_TAG: "latest"
-  SERVER_USER: "$SERVER_USER"
-  SERVER_IP: "$SERVER_IP"
+  SERVER_USER: "root"  # Здесь явно указываем root или другой user
+  SERVER_IP: "159.223.142.146"
   CONTAINER_NAME: "attc"
   DEPLOY_PATH: "/opt/att"
 
@@ -44,14 +44,16 @@ deploy:
   script:
     - echo "Deploying on server..."
     - |
-      ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << 'EOF'
-        echo "Stopping old container..."
-        docker stop $CONTAINER_NAME || true
-        docker rm $CONTAINER_NAME || true
-        echo "Pulling new image..."
-        docker pull $CI_REGISTRY_IMAGE:$DOCKER_TAG
-        echo "Running new container..."
-        docker run -d --restart=always --name $CONTAINER_NAME $CI_REGISTRY_IMAGE:$DOCKER_TAG
-      EOF
+      ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "
+        echo 'Stopping old container...';
+        docker stop $CONTAINER_NAME || true;
+        docker rm $CONTAINER_NAME || true;
+
+        echo 'Pulling new image...';
+        docker pull $CI_REGISTRY_IMAGE:$DOCKER_TAG;
+
+        echo 'Running new container...';
+        docker run -d --restart=always --name $CONTAINER_NAME $CI_REGISTRY_IMAGE:$DOCKER_TAG;
+      "
   only:
-    - main 
+    - main
