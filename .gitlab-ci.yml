@@ -12,8 +12,13 @@ variables:
 
 before_script:
   - echo "Starting GitLab Pipeline..."
+  - echo "DATABASE_URL=${DATABASE_URL}" > .env
+  - echo "SECRET_KEY=${SECRET_KEY}" >> .env
+  - echo "TELEGRAM_TOKEN=${TELEGRAM_TOKEN}" >> .env
+  - echo "TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}" >> .env
+  - echo "LOGIN=${LOGIN}" >> .env
+  - echo "PASSWORD=${PASSWORD}" >> .env
 
-# 🏗️ 1️⃣ Сборка Docker-образа и пуш в GitLab Registry
 build:
   stage: build
   image: docker:latest
