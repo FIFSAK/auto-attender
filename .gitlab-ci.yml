@@ -5,8 +5,8 @@ stages:
 variables:
   DOCKER_IMAGE: "att"
   DOCKER_TAG: "latest"
-  SERVER_USER: "root"
-  SERVER_IP: "159.223.142.146"
+  SERVER_USER: "$SERVER_USER"
+  SERVER_IP: "$SERVER_IP"
   CONTAINER_NAME: "attc"
   DEPLOY_PATH: "/opt/att"
 
