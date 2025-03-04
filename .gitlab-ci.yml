@@ -1,0 +1,47 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  DOCKER_IMAGE: "att"
+  DOCKER_TAG: "latest"
+  SERVER_USER: "root"
+  SERVER_IP: "159.223.142.146"
+  CONTAINER_NAME: "attc"
+  DEPLOY_PATH: "/opt/att"
+
+before_script:
+  - echo "Starting GitLab Pipeline..."
+
+# 🏗️ 1️⃣ Сборка Docker-образа и пуш в GitLab Registry
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "Logging in to GitLab Container Registry..."
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - echo "Building Docker image..."
+    - docker build -t $CI_REGISTRY_IMAGE:$DOCKER_TAG .
+    - echo "Pushing Docker image to GitLab Registry..."
+    - docker push $CI_REGISTRY_IMAGE:$DOCKER_TAG
+
+deploy:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client
+  script:
+    - echo "Deploying on server..."
+    - |
+      ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << 'EOF'
+        echo "Stopping old container..."
+        docker stop $CONTAINER_NAME || true
+        docker rm $CONTAINER_NAME || true
+        echo "Pulling new image..."
+        docker pull $CI_REGISTRY_IMAGE:$DOCKER_TAG
+        echo "Running new container..."
+        docker run -d --restart=always --name $CONTAINER_NAME -p 80:80 $CI_REGISTRY_IMAGE:$DOCKER_TAG
+      EOF
+  only:
