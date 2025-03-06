@@ -51,6 +51,7 @@ try:
             pass
         except Exception as e:
             bot.send_message(chat_id, f"Unexpected error while logging in: {e}")
+            exit(1)
 
         try:
             buttons = driver.find_elements(
@@ -78,12 +79,14 @@ try:
 
         except Exception as e:
             bot.send_message(chat_id, f"Error while searching buttons: {e}")
+            exit(1)
 
         time.sleep(60)
         driver.refresh()
 
 except Exception as e:
     bot.send_message(chat_id, f"Bot encountered a fatal error and is stopping: {e}")
+    exit(1)
 
 finally:
     driver.quit()
