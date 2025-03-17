@@ -1,0 +1,59 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  DOCKER_IMAGE: "att"
+  DOCKER_TAG: "latest"
+  SERVER_USER: "root"  # Здесь явно указываем root или другой user
+  SERVER_IP: "159.223.142.146"
+  CONTAINER_NAME: "attc"
+  DEPLOY_PATH: "/opt/att"
+
+before_script:
+  - echo "Starting GitLab Pipeline..."
+  - echo "DATABASE_URL=${DATABASE_URL}" > .env
+  - echo "SECRET_KEY=${SECRET_KEY}" >> .env
+  - echo "TELEGRAM_TOKEN=${TELEGRAM_TOKEN}" >> .env
+  - echo "TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}" >> .env
+  - echo "LOGIN=${LOGIN}" >> .env
+  - echo "PASSWORD=${PASSWORD}" >> .env
+
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "Logging in to GitLab Container Registry..."
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - echo "Building Docker image..."
+    - docker build -t $CI_REGISTRY_IMAGE:$DOCKER_TAG .
+    - echo "Pushing Docker image to GitLab Registry..."
+    - docker push $CI_REGISTRY_IMAGE:$DOCKER_TAG
+
+deploy:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+  script:
+    - echo "Deploying on server..."
+    - |
+      ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "
+        echo 'Stopping old container...';
+        docker stop $CONTAINER_NAME || true;
+        docker rm $CONTAINER_NAME || true;
+
+        echo 'Pulling new image...';
+        docker pull $CI_REGISTRY_IMAGE:$DOCKER_TAG;
+
+        echo 'Running new container...';
+        docker run -d --restart=always --name $CONTAINER_NAME $CI_REGISTRY_IMAGE:$DOCKER_TAG;
+      "
+  only:
+    - main
