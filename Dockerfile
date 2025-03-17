@@ -24,7 +24,7 @@ RUN python -m venv venv && \
     pip install -r requirements.txt
 
 # Копируем оставшийся проектный код в контейнер
-COPY clicker /app
+COPY . /app
 COPY .env /app/.env
 
 # Запускаем ваш скрипт при старте контейнера

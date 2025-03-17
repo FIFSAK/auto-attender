@@ -3,7 +3,7 @@ import os
 import json
 import datetime
 
-kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 kafka_topic = os.getenv("KAFKA_TOPIC", "my_topic")
 
 producer = KafkaProducer(

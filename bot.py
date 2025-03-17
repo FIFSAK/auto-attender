@@ -29,6 +29,7 @@ def status_command(message):
 
 
 def main():
+    print("Bot started")
     bot.infinity_polling()
 
 
