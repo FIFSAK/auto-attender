@@ -2,6 +2,7 @@ import time
 import os
 from dotenv import load_dotenv
 from kafkaClient import kafka_send
+from bot import bot, TELEGRAM_CHAT_ID
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -79,7 +80,7 @@ try:
                                 '//*[@id="RegistrationOnline-1674962804"]/div/div[2]/div/div[2]/div/div/div/div/div['
                                 '1]/div/div[1]/div'
                             )
-                            kafka_send("att", "I clicked attend.\n" + form.text)
+                            bot.send_mesage(TELEGRAM_CHAT_ID, "I clicked attend.\n" + form.text)
                         except Exception as e:
                             kafka_send("error", f"I can't click attend, error: {e}")
             else:
