@@ -18,13 +18,19 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+    restart: always
 
   att:
-    build: .
+    image: ${CI_REGISTRY_IMAGE}:${DOCKER_TAG}
+#    build: .
+    container_name: attc
+    env_file:
+      - .env
     networks:
       - att
     depends_on:
       - kafka
+    restart: always
 
 networks:
   att:
