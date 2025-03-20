@@ -1,5 +1,7 @@
 .gitattributes
 .gitignore
-venv
 .idea
-.venv
+.vscode
+.gitlab-ci.yml
+
+
