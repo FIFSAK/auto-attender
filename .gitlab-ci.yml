@@ -18,6 +18,8 @@ before_script:
   - echo "TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}" >> .env
   - echo "LOGIN=${LOGIN}" >> .env
   - echo "PASSWORD=${PASSWORD}" >> .env
+  - echo "CI_REGISTRY_IMAGE=${CI_REGISTRY_IMAGE}" >> .env
+  - echo "DOCKER_TAG=${DOCKER_TAG}" >> .env
 
 build:
   stage: build
