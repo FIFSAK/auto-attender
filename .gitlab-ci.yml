@@ -28,7 +28,7 @@ build:
     - docker:dind
   script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - docker build -t $CI_REGISTRY_IMAGE:$DOCKER_TAG .
+    - docker build --no-cache -t $CI_REGISTRY_IMAGE:$DOCKER_TAG .
     - docker push $CI_REGISTRY_IMAGE:$DOCKER_TAG
   artifacts:
     paths:
@@ -54,9 +54,10 @@ deploy:
 
     - ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "
         cd ~/att;
-        docker-compose pull;
+        docker rmi registry.gitlab.com/anuar200572/auto-attender:latest;
+        docker-compose pull --quiet;
         docker-compose down --remove-orphans;
-        docker-compose up -d;
+        docker-compose up -d --force-recreate
       "
   only:
     - main
