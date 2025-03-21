@@ -17,69 +17,6 @@ from selenium.webdriver.common.keys import Keys
 
 load_dotenv()
 
-kafka_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
-kafka_topic = os.getenv("KAFKA_TOPIC")
-# print(f"Connecting to Kafka at: {kafka_servers}")
-
-producer = KafkaProducer(
-    bootstrap_servers=kafka_servers,
-    value_serializer=lambda m: json.dumps(m).encode('utf-8')
-)
-
-
-# print("Connected to Kafka producer.")
-
-
-def kafka_send(status, text):
-    message_payload = {
-        "status": status,
-        "timestamp": datetime.datetime.utcnow().isoformat(),
-        "message": text
-    }
-    # print(f"Sending message: {message_payload}")
-    producer.send(kafka_topic, message_payload)
-    producer.flush()
-
-
-def read_last_n_messages(topic_name, bootstrap_servers, n=10):
-    # Создаём consumer БЕЗ auto_offset_reset
-    consumer = KafkaConsumer(
-        bootstrap_servers=bootstrap_servers,
-        value_deserializer=lambda m: json.loads(m.decode('utf-8')),
-        enable_auto_commit=False
-    )
-
-    # Получаем все партиции топика
-    partitions = consumer.partitions_for_topic(topic_name)
-    if partitions is None:
-        # print("Топик не найден.")
-        return []
-
-    messages = []
-
-    for partition_number in partitions:
-        tp = TopicPartition(topic_name, partition_number)
-        consumer.assign([tp])
-
-        # Получаем последний offset
-        end_offset = consumer.end_offsets([tp])[tp]
-        start_offset = max(end_offset - n, 0)
-
-        # Переходим к нужному offset
-        consumer.seek(tp, start_offset)
-
-        while True:
-            msg_pack = consumer.poll(timeout_ms=1000)
-            if not msg_pack:
-                break
-            for tp_key, msg_list in msg_pack.items():
-                for msg in msg_list:
-                    messages.append(msg.value)
-
-    consumer.close()
-    return messages[-n:]  # Возвращаем последние n сообщений по всем партициям
-
-
 # wsp credentials
 login = os.getenv("LOGIN")
 password = os.getenv("PASSWORD")
@@ -153,8 +90,8 @@ def main_loop():
         chrome_options.add_argument("--disable-gpu")
 
         # service = Service("/usr/bin/chromedriver")  # for docker prod
-        service = Service(executable_path=ChromeDriverManager().install()) # for windows
-        kafka_send("healthy", "Bot started. Opening page...")
+        service = Service(executable_path=ChromeDriverManager().install())  # for windows
+        print("healthy", "Bot started. Opening page...")
         driver = webdriver.Chrome(service=service, options=chrome_options)
 
         cycle = 0
@@ -187,13 +124,12 @@ def main_loop():
                 password_form.send_keys(Keys.ENTER)
                 time.sleep(5)
 
-                kafka_send("healthy", "Attempted to log in. Checking for attend button...")
-                # print("Attempted to log in. Checking for attend button...")
+                print("healthy", "Attempted to log in. Checking for attend button...")
             except NoSuchElementException:
                 # Not on the login page or elements not found yet
                 pass
             except Exception as e:
-                kafka_send("error", f"Unexpected error while logging in: {e}")
+                print("error", f"Unexpected error while logging in: {e}")
                 return  # or break, or pass
 
             # Look for attend buttons
@@ -214,26 +150,24 @@ def main_loop():
                                     By.XPATH,
                                     '//*[@id="RegistrationOnline-1674962804"]/div/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div'
                                 )
-                                # Let Kafka know
-                                kafka_send("healthy", "Clicked attend.\n" + form.text)
-                                # Send Telegram message
+                                print("healthy", "Clicked attend.\n" + form.text)
                                 bot.send_message(TELEGRAM_CHAT_ID, "I clicked attend.\n" + form.text)
                             except Exception as e:
-                                kafka_send("error", f"I can't click attend, error: {e}")
+                                print("error", f"I can't click attend, error: {e}")
                 else:
                     pass
 
             except Exception as e:
-                kafka_send("error", f"Error while searching buttons: {e}")
+                print("error", f"Error while searching buttons: {e}")
                 return
 
             time.sleep(60)
             driver.refresh()
 
     except Exception as e:
-        kafka_send("error", f"Bot encountered a fatal error and is stopping: {e}")
+        print("error", f"Bot encountered a fatal error and is stopping: {e}")
     finally:
-        kafka_send("error", "Bot stopped.")
+        print("error", "Bot stopped.")
 
 
 if __name__ == "__main__":

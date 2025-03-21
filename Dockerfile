@@ -28,4 +28,4 @@ COPY . /app
 COPY .env /app/.env
 
 # Запускаем ваш скрипт при старте контейнера
-CMD ["venv/bin/python", "main.py"]
+CMD ["venv/bin/python", "main.py", ">>" ,"/home/logs/app.log", "2>&1"]
