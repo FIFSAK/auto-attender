@@ -5,7 +5,7 @@ stages:
 variables:
   DOCKER_IMAGE: "att"
   DOCKER_TAG: "latest"
-  SERVER_USER: "root"  # Здесь явно указываем root или другой user
+  SERVER_USER: "root"
   SERVER_IP: "159.223.142.146"
   CONTAINER_NAME: "attc"
   DEPLOY_PATH: "/opt/att"
@@ -25,12 +25,13 @@ build:
   services:
     - docker:dind
   script:
-    - echo "Logging in to GitLab Container Registry..."
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - echo "Building Docker image..."
     - docker build -t $CI_REGISTRY_IMAGE:$DOCKER_TAG .
-    - echo "Pushing Docker image to GitLab Registry..."
     - docker push $CI_REGISTRY_IMAGE:$DOCKER_TAG
+  artifacts:
+    paths:
+      - .env
+    expire_in: 1 hour
 
 deploy:
   stage: deploy
@@ -42,19 +43,16 @@ deploy:
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
   script:
-    - echo "Deploying docker-compose on server..."
-
     - ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "mkdir -p $DEPLOY_PATH"
-
     - rsync -avz ./docker-compose.yml $SERVER_USER@$SERVER_IP:$DEPLOY_PATH/docker-compose.yml
     - rsync -avz .env $SERVER_USER@$SERVER_IP:$DEPLOY_PATH/.env
-
     - ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "
-      cd $DEPLOY_PATH;
-      docker-compose pull;
-      docker-compose down --remove-orphans;
-      docker-compose up -d;
+        cd $DEPLOY_PATH;
+        docker-compose pull;
+        docker-compose down --remove-orphans;
+        docker-compose up -d;
       "
   only:
     - main
+
 
