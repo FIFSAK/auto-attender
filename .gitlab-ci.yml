@@ -43,16 +43,21 @@ deploy:
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
   script:
-    - ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "mkdir -p $DEPLOY_PATH"
-    - rsync -avz ./docker-compose.yml $SERVER_USER@$SERVER_IP:$DEPLOY_PATH/docker-compose.yml
-    - rsync -avz .env $SERVER_USER@$SERVER_IP:$DEPLOY_PATH/.env
+    - echo "Deploying docker-compose in ~/att on server..."
+
+    - ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "mkdir -p ~/att"
+
+    - rsync -avz ./docker-compose.yml $SERVER_USER@$SERVER_IP:~/att/docker-compose.yml
+    - rsync -avz .env $SERVER_USER@$SERVER_IP:~/att/.env
+
     - ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "
-        cd $DEPLOY_PATH;
+        cd ~/att;
         docker-compose pull;
         docker-compose down --remove-orphans;
         docker-compose up -d;
       "
   only:
     - main
+
 
 
