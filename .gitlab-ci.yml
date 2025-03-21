@@ -55,7 +55,6 @@ deploy:
     - ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "
         cd ~/att;
         docker-compose down;
-        docker rmi bashj79/kafka-kraft
         docker rmi registry.gitlab.com/anuar200572/auto-attender:latest;
         docker-compose pull --quiet;
         docker-compose down --remove-orphans;
