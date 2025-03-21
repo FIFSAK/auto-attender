@@ -12,14 +12,14 @@ variables:
 
 before_script:
   - echo "Starting GitLab Pipeline..."
-  - echo "DATABASE_URL=${DATABASE_URL}" > .env
-  - echo "SECRET_KEY=${SECRET_KEY}" >> .env
   - echo "TELEGRAM_TOKEN=${TELEGRAM_TOKEN}" >> .env
   - echo "TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}" >> .env
   - echo "LOGIN=${LOGIN}" >> .env
   - echo "PASSWORD=${PASSWORD}" >> .env
   - echo "CI_REGISTRY_IMAGE=${CI_REGISTRY_IMAGE}" >> .env
   - echo "DOCKER_TAG=${DOCKER_TAG}" >> .env
+  - echo "KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}" >> .env
+  - echo "KAFKA_TOPIC=${KAFKA_TOPIC}" >> .env
 
 build:
   stage: build
@@ -54,6 +54,8 @@ deploy:
 
     - ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "
         cd ~/att;
+        docker-compose down;
+        docker rmi bashj79/kafka-kraft
         docker rmi registry.gitlab.com/anuar200572/auto-attender:latest;
         docker-compose pull --quiet;
         docker-compose down --remove-orphans;
