@@ -1,11 +1,9 @@
 import time
 import os
-import json
 import datetime
 from datetime import timedelta, timezone
 import threading
 from dotenv import load_dotenv
-from kafka import KafkaProducer, KafkaConsumer, TopicPartition
 import telebot
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
@@ -14,8 +12,28 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+import logging
 
 load_dotenv()
+
+log_file_path = "/home/logs/app.log"
+
+logging.basicConfig(
+    filename=log_file_path,
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+)
+
+
+def log_info(msg):
+    logging.info(f"healthy {msg}")
+    # print(msg)
+
+
+def log_error(msg):
+    logging.error(f"error{msg}")
+    # print(f"error{msg}")
+
 
 # wsp credentials
 login = os.getenv("LOGIN")
@@ -28,24 +46,38 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 
+def get_last_logs(n=5):
+    log_file_path = "/home/logs/app.log"
+    rotated_log_file_path = "/home/logs/app.log.1"
+
+    try:
+        with open(log_file_path, "r") as file:
+            lines = file.readlines()
+            if lines:
+                return "".join(lines[-n:]).strip()
+            else:
+                # Если app.log пуст, читаем из app.log.1
+                try:
+                    with open(rotated_log_file_path, "r") as rotated_file:
+                        rotated_lines = rotated_file.readlines()
+                        if rotated_lines:
+                            return "(from rotated log)\n" + "".join(rotated_lines[-n:]).strip()
+                        else:
+                            return "Both log files are empty."
+                except FileNotFoundError:
+                    return f"Rotated log file not found: {rotated_log_file_path}"
+    except FileNotFoundError:
+        return f"Log file not found: {log_file_path}"
+    except Exception as e:
+        return f"Error reading log files: {e}"
+
+
+
 @bot.message_handler(commands=["report"])
 def status_command(message):
-    response = "CURRENT STATUS:\n"
-    messages = read_last_n_messages(kafka_topic, kafka_servers, n=6)
-
-    if messages and messages[-1]["status"] == "healthy":
-        response += "healthy"
-    else:
-        if messages:
-            response += "unhealthy since " + format_timestamp(messages[-1]["timestamp"])
-        else:
-            response += "No messages found."
-
-    response += "\n\nHISTORY:\n"
-    for msg in messages:
-        ts = format_timestamp(msg['timestamp'])
-        response += f"{ts} - {msg['status']} - {msg['message']}\n"
-
+    response = "Last logs:\n"
+    logs = get_last_logs(5)
+    response += logs if logs else "No logs found."
     bot.send_message(message.chat.id, response)
 
 
@@ -89,9 +121,9 @@ def main_loop():
         chrome_options.add_argument("--disable-extensions")
         chrome_options.add_argument("--disable-gpu")
 
-        # service = Service("/usr/bin/chromedriver")  # for docker prod
-        service = Service(executable_path=ChromeDriverManager().install())  # for windows
-        print("healthy", "Bot started. Opening page...")
+        service = Service("/usr/bin/chromedriver")  # for docker prod
+        # service = Service(executable_path=ChromeDriverManager().install())  # for windows
+        log_info("Bot started. Opening page...")
         driver = webdriver.Chrome(service=service, options=chrome_options)
 
         cycle = 0
@@ -124,12 +156,12 @@ def main_loop():
                 password_form.send_keys(Keys.ENTER)
                 time.sleep(5)
 
-                print("healthy", "Attempted to log in. Checking for attend button...")
+                log_info("Attempted to log in. Checking for attend button...")
             except NoSuchElementException:
                 # Not on the login page or elements not found yet
                 pass
             except Exception as e:
-                print("error", f"Unexpected error while logging in: {e}")
+                log_error(f"Unexpected error while logging in: {e}")
                 return  # or break, or pass
 
             # Look for attend buttons
@@ -150,24 +182,24 @@ def main_loop():
                                     By.XPATH,
                                     '//*[@id="RegistrationOnline-1674962804"]/div/div[2]/div/div[2]/div/div/div/div/div[1]/div/div[1]/div'
                                 )
-                                print("healthy", "Clicked attend.\n" + form.text)
+                                log_info("Clicked attend.\n" + form.text)
                                 bot.send_message(TELEGRAM_CHAT_ID, "I clicked attend.\n" + form.text)
                             except Exception as e:
-                                print("error", f"I can't click attend, error: {e}")
+                                log_error(f"I can't click attend, error: {e}")
                 else:
                     pass
 
             except Exception as e:
-                print("error", f"Error while searching buttons: {e}")
+                log_error(f"Error while searching buttons: {e}")
                 return
 
             time.sleep(60)
             driver.refresh()
 
     except Exception as e:
-        print("error", f"Bot encountered a fatal error and is stopping: {e}")
+        log_error(f"Bot encountered a fatal error and is stopping: {e}")
     finally:
-        print("error", "Bot stopped.")
+        log_error("Bot stopped.")
 
 
 if __name__ == "__main__":

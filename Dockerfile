@@ -1,31 +1,40 @@
-# Используем легковесный базовый образ на Python 3.10 (можно указать 3.11 или др.)
 FROM python:3.10-slim
 
-# Чтобы apt-get не зависал на вопросах
 ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Almaty
 
-# Устанавливаем Chromium и chromedriver
+# Установка часового пояса
+RUN apt-get update && \
+    apt-get install -y tzdata && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone
+
+# Установка Chromium и logrotate
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         chromium \
         chromium-driver \
+        logrotate \
+        cron \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Создаём рабочую директорию
+# Работаем из папки приложения
 WORKDIR /app
 
-# Скопируем файлы зависимостей (если у вас есть requirements.txt)
 COPY requirements.txt ./
-
-# Создаем и активируем виртуальное окружение, затем устанавливаем зависимости
 RUN python -m venv venv && \
-    . venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install -r requirements.txt
+    ./venv/bin/pip install --upgrade pip && \
+    ./venv/bin/pip install -r requirements.txt
 
-# Копируем оставшийся проектный код в контейнер
 COPY . /app
 COPY .env /app/.env
+COPY logrotate.conf /etc/logrotate.d/monitoring
+COPY crontab.txt /etc/cron.d/logrotate-cron
+COPY entrypoint.sh /app/entrypoint.sh
 
-# Запускаем ваш скрипт при старте контейнера
-CMD ["venv/bin/python", "main.py", ">>" ,"/home/logs/app.log", "2>&1"]
+RUN chmod +x /app/entrypoint.sh && \
+    chmod 0644 /etc/cron.d/logrotate-cron && \
+    crontab /etc/cron.d/logrotate-cron && \
+    mkdir -p /home/logs && touch /home/logs/app.log && chmod 666 /home/logs/app.log
+
+CMD ["/app/entrypoint.sh"]

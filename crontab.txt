@@ -1,0 +1,1 @@
+* * * * * root /usr/sbin/logrotate /etc/logrotate.d/monitoring
